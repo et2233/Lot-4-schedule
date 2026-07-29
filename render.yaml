@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: construction-schedule
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 2 -b 0.0.0.0:10000 wsgi:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: EXCEL_PATH
+        value: ./Construction_Schedule_with_GanttSheet.xlsx
+      - key: DATA_DIR
+        value: ./

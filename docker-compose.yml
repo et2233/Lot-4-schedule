@@ -1,0 +1,16 @@
+# 项目管理工具 - Docker Compose
+version: '3.8'
+
+services:
+  schedule:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/data
+      - ./Construction_Schedule_with_GanttSheet.xlsx:/data/Construction_Schedule_with_GanttSheet.xlsx:ro
+    environment:
+      - EXCEL_PATH=/data/Construction_Schedule_with_GanttSheet.xlsx
+      - DATA_DIR=/data
+      - PORT=5000
+    restart: always

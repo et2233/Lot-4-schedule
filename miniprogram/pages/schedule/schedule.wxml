@@ -1,0 +1,2 @@
+<!-- 小程序页面 - 使用 web-view 嵌入 -->
+<web-view src="https://your-domain.com"></web-view>

@@ -1,0 +1,4 @@
+# 项目管理工具 - 依赖项
+flask>=3.0
+openpyxl>=3.1
+gunicorn>=21.2
