@@ -952,10 +952,14 @@ class ProjectManager:
         valid = [t for t in self.tasks.values() if t.start and t.planned_finish and t.task_name]
         completed = [t for t in self.tasks.values() if t.status == 'COMPLETED' and t.task_name]
         in_progress = [t for t in self.tasks.values() if t.status == 'IN PROGRESS' and t.task_name]
+        # 开工日期 = Task 1 的计划开始日期（如果有的话）
+        task1 = self.tasks.get(1)
+        project_start = task1.start if task1 and task1.start else self.project_start
+
         if not valid:
             return {
                 'project_address': self.project_address,
-                'project_start': self.project_start.isoformat() if self.project_start else None,
+                'project_start': project_start.isoformat() if project_start else None,
                 'total_tasks': len([t for t in self.tasks.values() if t.task_name]),
                 'earliest_start': None,
                 'latest_finish': None,
@@ -966,7 +970,7 @@ class ProjectManager:
         finishes = [t.planned_finish for t in valid]
         return {
             'project_address': self.project_address,
-            'project_start': self.project_start.isoformat() if self.project_start else None,
+            'project_start': project_start.isoformat() if project_start else None,
             'total_tasks': len([t for t in self.tasks.values() if t.task_name]),
             'earliest_start': min(starts).isoformat(),
             'latest_finish': max(finishes).isoformat(),

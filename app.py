@@ -246,7 +246,7 @@ INDEX_HTML = r'''
 
 <div class="summary-bar" id="summary-bar">
   <div class="summary-card card-tasks"><div class="label">任务总数</div><div class="value" id="sum-tasks">-</div></div>
-  <div class="summary-card card-start"><div class="label">项目基准日期</div><div class="value small" id="sum-start">-</div></div>
+  <div class="summary-card card-start"><div class="label">开工日期</div><div class="value small" id="sum-start">-</div></div>
   <div class="summary-card card-completed"><div class="label">已完成</div><div class="value" id="sum-completed" style="color:#059669">0</div></div>
   <div class="summary-card card-progress"><div class="label">进行中</div><div class="value" id="sum-progress" style="color:#7c3aed">0</div></div>
   <div class="summary-card card-finish"><div class="label">最晚预计完成</div><div class="value small" id="sum-late">-</div></div>
@@ -310,7 +310,7 @@ async function loadTasks() {
     renderTasks(allTasks);
     document.getElementById('project-info').textContent =
       (data.summary.project_address || 'Construction Schedule') +
-      ' | 基准日期: ' + (data.summary.project_start || '—');
+      ' | 开工日期: ' + (data.summary.project_start || '—');
   } catch (e) { showToast('网络错误: ' + e.message, 'error'); }
 }
 
