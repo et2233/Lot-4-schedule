@@ -16,7 +16,7 @@ from engine import ProjectManager
 app = Flask(__name__)
 
 pm: ProjectManager | None = None
-EXCEL_PATH = os.path.join(os.path.dirname(__file__), '..', 'Construction_Schedule_with_GanttSheet.xlsx')
+EXCEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Construction_Schedule_with_GanttSheet.xlsx')
 
 
 def get_pm() -> ProjectManager:
@@ -549,5 +549,6 @@ def index():
 if __name__ == '__main__':
     print("🚀 项目管理工具 v2 启动中...")
     print(f"📂 Excel 文件: {EXCEL_PATH}")
+    print(f"📁 Excel 存在: {os.path.exists(EXCEL_PATH)}")
     print(f"🌐 访问地址: http://localhost:5000")
     app.run(host='0.0.0.0', port=5000, debug=True)
