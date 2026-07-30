@@ -617,20 +617,14 @@ class ScheduleEngine:
     def set_status(self, task_id: int, new_status: str) -> dict:
         """
         手动设置任务状态。
-        仅当没有实际完成日期时，允许设为 IN PROGRESS 或 PLANNING。
-        如果有实际完成日期，状态强制为 COMPLETED，不可手动修改。
+        允许 PLANNING / IN PROGRESS / COMPLETED 三向切换，
+        即使有实际完成日期也允许手动修改状态。
         """
         if task_id not in self.tasks:
             return {'updated': {}, 'error': f'任务 ID {task_id} 不存在'}
 
         task = self.tasks[task_id]
         old_status = task.status
-
-        if task.actual_finish is not None and new_status != 'COMPLETED':
-            return {
-                'updated': {},
-                'error': '该任务已有实际完成日期，状态自动锁定为 COMPLETED。如需修改状态，请先清除实际完成日期。'
-            }
 
         valid_statuses = {'PLANNING', 'IN PROGRESS', 'COMPLETED'}
         if new_status not in valid_statuses:

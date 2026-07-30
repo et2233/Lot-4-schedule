@@ -284,11 +284,10 @@ INDEX_HTML = r'''
             <th>预计完成</th>
             <th>实际完成</th>
             <th>状态</th>
-            <th>操作</th>
           </tr>
         </thead>
         <tbody id="task-table-body">
-          <tr><td colspan="10" class="loading">加载中...</td></tr>
+          <tr><td colspan="9" class="loading">加载中...</td></tr>
         </tbody>
       </table>
     </div>
@@ -325,7 +324,7 @@ function renderSummary(s) {
 
 function renderTasks(tasks) {
   const tbody = document.getElementById('task-table-body');
-  if (!tasks.length) { tbody.innerHTML = '<tr><td colspan="10" class="loading">无匹配任务</td></tr>'; return; }
+  if (!tasks.length) { tbody.innerHTML = '<tr><td colspan="9" class="loading">无匹配任务</td></tr>'; return; }
   tbody.innerHTML = tasks.map(t => {
     const isCascaded = cascadedTasks.has(t.task_id);
     const rowClass = isCascaded ? 'cascaded' : '';
@@ -347,17 +346,14 @@ function renderTasks(tasks) {
       <td class="date-cell">
         <input class="inline-input date-input" type="date" value="${t.start||''}" onchange="onStartChange(${t.task_id}, this.value)" title="设置计划开始日期">
       </td>
-      <td class="date-cell${!t.planned_finish?' empty':''}">${t.planned_finish||'—'}</td>
+      <td class="date-cell${!t.planned_finish?' empty':''}">${formatDateDMY(t.planned_finish)||'—'}</td>
       <td class="date-cell">
         <input class="inline-input date-input" type="date" value="${t.actual_finish||''}" onchange="onActualFinishChange(${t.task_id}, this.value)" title="设置实际完成日期">
       </td>
       <td>
-        <span class="status-badge ${statusClass}" onclick="cycleStatus(${t.task_id}, '${t.status||'PLANNING'}')" title="点击切换 PLANNING ↔ IN PROGRESS">
+        <span class="status-badge ${statusClass}" onclick="cycleStatus(${t.task_id}, '${t.status||'PLANNING'}')" title="点击切换 PLANNING ↔ IN PROGRESS ↔ COMPLETED">
           ${t.status||'PLANNING'}
         </span>
-      </td>
-      <td>
-        <button class="del-btn" onclick="deleteTask(${t.task_id})" title="删除此任务">🗑</button>
       </td>
     </tr>`;
   }).join('');
@@ -372,6 +368,14 @@ function renderTasks(tasks) {
 }
 
 function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function formatDateDMY(dateStr) {
+  if (!dateStr) return '';
+  // dateStr is YYYY-MM-DD
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  return parts[2] + '/' + parts[1] + '/' + parts[0];
+}
 
 function filterTasks() {
   const q = document.getElementById('search-input').value.toLowerCase();
@@ -455,16 +459,17 @@ async function onActualFinishChange(taskId, newActual) {
       }
     }
     renderSummaryFromTasks(); renderTasks(allTasks);
-    showToast(newActual ? '✅ 状态已自动设为 COMPLETED' : '🔄 实际完成日期已清除', 'success');
+    showToast(newActual ? '✅ 实际完成日期已设置' : '🔄 实际完成日期已清除', 'success');
   } catch (e) { showToast('请求失败: ' + e.message, 'error'); }
 }
 
-// 状态切换
+// 状态切换 (三向: PLANNING → IN PROGRESS → COMPLETED)
 async function cycleStatus(taskId, currentStatus) {
   const task = allTasks.find(t => t.task_id === taskId);
   if (!task) return;
-  if (task.actual_finish) { showToast('已有实际完成日期，状态锁定为 COMPLETED', 'info'); return; }
-  const nextStatus = currentStatus === 'IN PROGRESS' ? 'PLANNING' : 'IN PROGRESS';
+  const statuses = ['PLANNING', 'IN PROGRESS', 'COMPLETED'];
+  const idx = statuses.indexOf(currentStatus);
+  const nextStatus = statuses[(idx + 1) % statuses.length];
   try {
     const resp = await fetch('/api/set-status', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
